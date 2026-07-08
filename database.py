@@ -1,15 +1,17 @@
 import os
-import psycopg2
-from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
 
-load_dotenv()
-
-connection = psycopg2.connect(
-    host=os.getenv("DB_HOST"),
-    database=os.getenv("DB_NAME"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    port=os.getenv("DB_PORT")
+DATABASE_URL = (
+    f"postgresql://{os.getenv('DB_USER','postgres')}:"
+    f"{os.getenv('DB_PASSWORD','password')}@"
+    f"{os.getenv('DB_HOST','localhost')}:"
+    f"{os.getenv('DB_PORT','5432')}/"
+    f"{os.getenv('DB_NAME','librarydb')}"
 )
 
-cursor = connection.cursor()
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(bind=engine)
+
+Base = declarative_base()

@@ -1,53 +1,98 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+
 import app
 
 
-class TestLibraryApp(unittest.TestCase):
+class TestLibraryApplication(unittest.TestCase):
 
-    @patch("builtins.print")
-    def test_invalid_menu_option(self, mock_print):
-        with patch("builtins.input", side_effect=["9", "4"]):
-            with patch("app.create_table"):
-                app.menu()
 
-        mock_print.assert_any_call("Invalid option.")
+    @patch("builtins.input",
+           side_effect=["Python", "John Smith"])
+    def test_add_book(self, mock_input):
 
-    @patch("builtins.print")
-    def test_exit(self, mock_print):
-        with patch("builtins.input", side_effect=["4"]):
-            with patch("app.create_table"):
-                app.menu()
+        db = Mock()
 
-        mock_print.assert_any_call("Goodbye!")
+        app.add_book(db)
 
-    @patch("app.get_connection")
-    @patch("builtins.input", side_effect=["Python", "Guido"])
-    @patch("builtins.print")
-    def test_add_book(self, mock_print, mock_input, mock_connection):
-        conn = mock_connection.return_value
-        cur = conn.cursor.return_value
+        db.add.assert_called_once()
+        db.commit.assert_called_once()
 
-        app.add_book()
 
-        cur.execute.assert_called_once()
-        conn.commit.assert_called_once()
+    def test_view_books(self):
 
-        mock_print.assert_called_with("Book added successfully!")
+        db = Mock()
 
-    @patch("app.get_connection")
-    @patch("builtins.input", return_value="1")
-    @patch("builtins.print")
-    def test_delete_book(self, mock_print, mock_input, mock_connection):
-        conn = mock_connection.return_value
-        cur = conn.cursor.return_value
+        book = Mock()
+        book.id = 1
+        book.title = "Python"
+        book.author = "John"
 
-        app.delete_book()
+        db.query.return_value.all.return_value = [book]
 
-        cur.execute.assert_called_once()
-        conn.commit.assert_called_once()
+        with patch("builtins.print") as output:
 
-        mock_print.assert_called_with("Book deleted successfully!")
+            app.view_books(db)
+
+            output.assert_called()
+
+
+    @patch("builtins.input",
+           return_value="1")
+    def test_delete_book(self, mock_input):
+
+        db = Mock()
+
+        book = Mock()
+
+        db.query.return_value.filter.return_value.first.return_value = book
+
+        app.delete_book(db)
+
+        db.delete.assert_called_once_with(book)
+
+        db.commit.assert_called_once()
+
+
+    @patch("builtins.input",
+           return_value="Alice")
+    def test_add_member(self, mock_input):
+
+        db = Mock()
+
+        app.add_member(db)
+
+        db.add.assert_called_once()
+
+        db.commit.assert_called_once()
+
+
+    @patch("builtins.input",
+           side_effect=["1", "1"])
+    def test_create_loan(self, mock_input):
+
+        db = Mock()
+
+        app.create_loan(db)
+
+        db.add.assert_called_once()
+
+        db.commit.assert_called_once()
+
+
+    @patch("builtins.input",
+           return_value="8")
+    def test_exit_menu(self, mock_input):
+
+        with patch("app.SessionLocal") as session:
+
+            db = Mock()
+
+            session.return_value = db
+
+            app.menu()
+
+            db.close.assert_called_once()
 
 
 if __name__ == "__main__":
