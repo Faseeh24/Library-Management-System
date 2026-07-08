@@ -3,3 +3,5 @@ flake8
 psycopg2-binary
 python-dotenv
 SQLAlchemy
+fastapi
+uvicorn
