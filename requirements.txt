@@ -1,2 +1,4 @@
 pytest
 flake8
+psycopg2-binary
+python-dotenv
