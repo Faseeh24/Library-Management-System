@@ -35,6 +35,8 @@ services:
       REDIS_DB: 0
     ports:
       - "8001:8000"
+    volumes:
+      - ./reports:/app/reports
 
   worker:
     build: .
@@ -52,6 +54,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB: 0
+    volumes:
+      - ./reports:/app/reports
 
   redis:
     image: redis:7
