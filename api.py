@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from database import Base, SessionLocal, engine
 from models import Book, Loan, Member, User
+from tasks import generate_library_report
 
 
 app = FastAPI(
@@ -507,3 +508,10 @@ def delete_loan(
     db.delete(loan)
     db.commit()
     return {"message": "Loan deleted successfully"}
+
+
+@app.post("/reports/generate", status_code=status.HTTP_202_ACCEPTED)
+def generate_report():
+    # Queue the report job so the request returns immediately with a task ID.
+    task = generate_library_report.delay()
+    return {"message": "Report generation queued", "task_id": task.id}
