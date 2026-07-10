@@ -9,6 +9,7 @@ from enum import Enum
 from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -22,6 +23,18 @@ app = FastAPI(
     title="Library Management API",
     description="Backend API for Library Management System",
     version="1.0",
+)
+
+# Allow the Vite frontend container or local dev server to call the API from the browser.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 Base.metadata.create_all(bind=engine)
