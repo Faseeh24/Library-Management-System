@@ -1,26 +1,8 @@
 services:
-  app:
-    build: .
-    container_name: library_app
-    environment:
-      DB_HOST: postgres
-      DB_NAME: librarydb
-      DB_USER: postgres
-      DB_PASSWORD: password
-      DB_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_DB: 0
-    depends_on:
-      - postgres
-      - redis
-    ports:
-      - "8000:8000"
-
   api:
     build: .
     container_name: library_api
-    command: uvicorn api:app --host 0.0.0.0 --port 8000
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
     depends_on:
       - postgres
       - redis
@@ -36,12 +18,12 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - ./reports:/app/reports
+      - ./backend/reports:/app/backend/reports
 
   worker:
     build: .
     container_name: library_worker
-    command: celery -A celery_app.celery_app worker --loglevel=info
+    command: celery -A backend.tasks.celery_app.celery_app worker --loglevel=info
     depends_on:
       - postgres
       - redis
@@ -55,7 +37,7 @@ services:
       REDIS_PORT: 6379
       REDIS_DB: 0
     volumes:
-      - ./reports:/app/reports
+      - ./backend/reports:/app/backend/reports
 
   redis:
     image: redis:7

@@ -1,5 +1,5 @@
-from database import SessionLocal
-from models import Book, Member
+from backend.db.session import SessionLocal
+from backend.models import Book, Member
 
 db = SessionLocal()
 
